@@ -12,7 +12,7 @@ public class PathConfig {
 	
 	public static String modelResPath = "data/modelRes/ThreeM09/";
 	
-	public static String minPostNum = "50";
+	public static String minPostNum = "80";
 	
 	public static String UQAPath = "data/modelRes/ThreeM09/UQA/";
 	
