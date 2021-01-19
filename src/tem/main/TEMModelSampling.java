@@ -1,20 +1,16 @@
 package tem.main;
 
+import tem.com.ComUtil;
+import tem.com.FileUtil;
+import tem.conf.ConstantConfig;
+import tem.conf.PathConfig;
+import tem.main.Documents.Document;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import tem.com.ComUtil;
-import tem.com.FileUtil;
-import tem.com.JC;
-import tem.com.MatrixUtil;
-import tem.conf.ConstantConfig;
-import tem.conf.PathConfig;
-import tem.main.Documents;
-import tem.main.Documents.Document;
-import tem.main.TEMModel;
 
 /**
  * Gibbs Sampling of Topic Expertise Model
@@ -133,13 +129,22 @@ public class TEMModelSampling {
 		Documents docSet = new Documents();
 		
 		String docfile = resultPath + "USER" + minPostNum + ".data";
-		// docSet.readDocs(originalDocsPath, minPostNum);
 
-		// Save Serialized data
+		// Preprocessing step, only needs to be run if docfile does not already exists
+		File f = new File(docfile);
+		if (! f.isFile()) {
+			System.out.println("0 Preprocessing training data ...");
+			docSet.readDocs(originalDocsPath, minPostNum);
+
+			// Delete terms that appear only n times
+			// docSet.deleteRareTerms(3);
+
+			// Save serialized data
+			FileUtil.saveClass(docSet, docfile);
+		}
+		// Load serialized data
 		docSet = FileUtil.loadClass(docSet, docfile);
-		// FileUtil.saveClass(docSet, docfile);
-		// Delete terms that appear only n times
-		// docSet.deleteRareTerms(3);
+
 		System.out.println("indexToTermMap size : "
 				+ docSet.indexToTermMap.size());
 		// System.out.println("indexToTermMap : " + docSet.indexToTermMap);
@@ -210,7 +215,7 @@ public class TEMModelSampling {
 				}
 			}
 		 }
-		System.out.println("quesionsCount: " + questionCount);
+		System.out.println("questionsCount: " + questionCount);
 		System.out.println("answerCount: " + answerCount);
 		 
 		TEMModel model = new TEMModel(modelparam);
