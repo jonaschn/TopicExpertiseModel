@@ -2,6 +2,6 @@ package tem.conf;
 
 public class ConstantConfig {
 	
-	public static String LDAPARAMETERFILE = "data/modelParams/temParams.txt";
+	public static String LDAPARAMETERFILE = "data/modelParams/tempParams.txt";
 
 }

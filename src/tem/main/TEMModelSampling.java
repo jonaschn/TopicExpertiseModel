@@ -50,7 +50,11 @@ public class TEMModelSampling {
 		ArrayList<String> paramLines = new ArrayList<String>();
 		FileUtil.readLines(parameterFile, paramLines);
 		for (String line : paramLines) {
-			String[] lineParts = line.split("\t");
+			// ignore empty lines in config file
+			if (line.isEmpty()) {
+				continue;
+			}
+			String[] lineParts = line.split("\\s+");
 			switch (parameters.valueOf(lineParts[0])) {
 			case alpha:
 				ldaparameters.alpha = Float.valueOf(lineParts[1]);
@@ -202,7 +206,7 @@ public class TEMModelSampling {
 		// System.out.println(vote + "\t" + docSet.voteCountMap.get(vote));
 		// }
 
-		//Count quesions and answers
+		//Count questions and answers
 		int questionCount = 0;
 		int answerCount = 0;
 		 for (int d = 0; d < docSet.docs.size(); d++) {
@@ -227,7 +231,7 @@ public class TEMModelSampling {
 		model.saveIteratedModel(modelparam.iteration, docSet, minPostNum);
 
 		// save model in serialized data 
-		String modelName = "E_" + model.ENum + "_T_" + model.K;
+		String modelName = "E" + model.ENum + "_T" + model.K;
 		FileUtil.saveClass(model, PathConfig.modelResPath + "USER" + minPostNum
 				+ "/" + modelName + ".model");
 		System.out.println("Done!");
