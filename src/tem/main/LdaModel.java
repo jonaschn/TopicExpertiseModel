@@ -5,6 +5,9 @@ package tem.main;
  * @blog http://blog.csdn.net/yangliuy
  * @mail yangliuyx@gmail.com
  */
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,10 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import tem.com.FileUtil;
-import tem.conf.PathConfig;
-import tem.main.Documents;
 
 public class LdaModel {
 	
@@ -34,8 +33,7 @@ public class LdaModel {
 	int saveStep;//The number of iterations between two saving
 	int beginSaveIters;//Begin save model at this iteration
 	
-	public LdaModel(LdaGibbsSampling.modelparameters modelparam) {
-		// TODO Auto-generated constructor stub
+	public LdaModel(LdaGibbsSampling.ModelParameters modelparam) {
 		alpha = modelparam.alpha;
 		beta = modelparam.beta;
 		iterations = modelparam.iteration;

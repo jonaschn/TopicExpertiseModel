@@ -1,12 +1,15 @@
+// Topic Expertise Model
+topicNum    20
+expertiseNum    3
+
+// Dirichlet priors
 alpha   0.5
 beta    0.01
 gamma   0.01
 eta     0.1
 xi      0.01
 
-topicNum    20
-expertiseNum    3
-
+// Gibbs sampling
 iteration   300
 saveStep    20
 beginSaveIters 5

@@ -1,5 +1,11 @@
 package tem.main;
 
+import tem.com.FileUtil;
+import tem.com.Stopwords;
+import tem.conf.PathConfig;
+import tem.parser.Porter;
+import tem.parser.StanfordTokenizer;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,12 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import tem.com.FileUtil;
-import tem.com.Stopwords;
-import tem.conf.PathConfig;
-import tem.parser.Porter;
-import tem.parser.StanfordTokenizer;
 
 /**Documents class for posts in Stack Overflow Forum
  * Preprocess posts and transfer them to word index representation
@@ -49,12 +49,14 @@ public class Documents implements java.io.Serializable{
 		tagToIndexMap = new HashMap<String, Integer>();
 		indexToTagMap = new ArrayList<String>();
 		tagCountMap = new HashMap<String, Integer>();
+
 		voteToIndexMap = new HashMap<String, Integer>();
 		indexToVoteMap = new ArrayList<String>();
 		voteCountMap = new HashMap<String, Integer>();
 	}
 	
 	public void readDocs(String docsPath, String minPostNum){
+		// Preprocessing including stop word removal and stemming
 		Stopwords stopwords = new Stopwords();
 		Porter stemmer = new Porter();
 		for(File docFile : new File(docsPath).listFiles()){

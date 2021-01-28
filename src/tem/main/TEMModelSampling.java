@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 public class TEMModelSampling {
 
-	public static class modelparameters {
+	public static class ModelParameters {
 		float alpha = 0.5f;// usual value is 50 / K
 		float beta = 0.01f;
 		float gamma = 0.01f;
@@ -44,14 +44,12 @@ public class TEMModelSampling {
 	 * @param parameterFile
 	 * @return void
 	 */
-	private static void getParametersFromFile(modelparameters ldaparameters,
-			String parameterFile) {
-		// TODO Auto-generated method stub
+	private static void getParametersFromFile(ModelParameters ldaparameters, String parameterFile) {
 		ArrayList<String> paramLines = new ArrayList<String>();
 		FileUtil.readLines(parameterFile, paramLines);
 		for (String line : paramLines) {
-			// ignore empty lines in config file
-			if (line.isEmpty()) {
+			// ignore comments and empty lines in config file
+			if (line.isEmpty() || line.startsWith("//")) {
 				continue;
 			}
 			String[] lineParts = line.split("\\s+");
@@ -128,7 +126,7 @@ public class TEMModelSampling {
 		String resultPath = PathConfig.modelResPath + "USER" + minPostNum + "/";
 		String parameterFile = ConstantConfig.LDAPARAMETERFILE;
 
-		modelparameters modelparam = new modelparameters();
+		ModelParameters modelparam = new ModelParameters();
 		getParametersFromFile(modelparam, parameterFile);
 		Documents docSet = new Documents();
 		

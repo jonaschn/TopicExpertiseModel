@@ -1,15 +1,10 @@
 package tem.main;
 
-import java.io.File;
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+
 import java.io.IOException;
 import java.util.ArrayList;
-
-import tem.com.FileUtil;
-import tem.com.JC;
-import tem.conf.ConstantConfig;
-import tem.conf.PathConfig;
-import tem.main.Documents;
-import tem.main.TEMModelSampling.modelparameters;
 
 /**Liu Yang's implementation of Gibbs Sampling of LDA
  * @author yangliu
@@ -19,7 +14,7 @@ import tem.main.TEMModelSampling.modelparameters;
 
 public class LdaGibbsSampling {
 	
-	public static class modelparameters {
+	public static class ModelParameters {
 		float alpha = 1f; //usual value is 50 / K
 		float beta = 0.1f;//usual value is 0.1
 		int topicNum = 15;
@@ -35,13 +30,16 @@ public class LdaGibbsSampling {
 	 * @param parameterFile
 	 * @return void
 	 */
-	private static void getParametersFromFile(modelparameters ldaparameters,
-			String parameterFile) {
-		// TODO Auto-generated method stub
+	private static void getParametersFromFile(ModelParameters ldaparameters,
+											  String parameterFile) {
 		ArrayList<String> paramLines = new ArrayList<String>();
 		FileUtil.readLines(parameterFile, paramLines);
-		for(String line : paramLines){
-			String[] lineParts = line.split("\t");
+		for (String line : paramLines) {
+			// ignore comments and empty lines in config file
+			if (line.isEmpty() || line.startsWith("//")) {
+				continue;
+			}
+			String[] lineParts = line.split("\\s+");
 			switch(parameters.valueOf(lineParts[0])){
 			case alpha:
 				ldaparameters.alpha = Float.valueOf(lineParts[1]);
@@ -90,7 +88,7 @@ public class LdaGibbsSampling {
 		System.out.println("indexToVoteMap size : "
 				+ docSet.indexToVoteMap.size());
 		
-		modelparameters ldaparameters = new modelparameters();
+		ModelParameters ldaparameters = new ModelParameters();
 		System.out.println("Topic Num : " + ldaparameters.topicNum);
 		LdaModel model = new LdaModel(ldaparameters);
 		System.out.println("1 Initialize the model ...");

@@ -1,16 +1,15 @@
 package tem.main;
 
+import tem.com.ComUtil;
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+import tem.main.TEMModelSampling.ModelParameters;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import tem.com.ComUtil;
-import tem.com.FileUtil;
-import tem.conf.PathConfig;
-import tem.main.ModelComFunc;
-import tem.main.TEMModelSampling.modelparameters;
 
 /**
  * Class for Topic Expertise Model
@@ -70,7 +69,7 @@ public class TEMModel implements java.io.Serializable {
 		System.out.println("Construct a null model object");
 	}
 
-	public TEMModel(modelparameters modelparam) {
+	public TEMModel(ModelParameters modelparam) {
 		alpha = modelparam.alpha;
 		beta = modelparam.beta;
 		gamma = modelparam.gamma;
@@ -227,9 +226,9 @@ public class TEMModel implements java.io.Serializable {
 			// Use Gibbs Sampling to update Z[][][] and E[][][]
 			for (int u = 0; u < docSet.docs.size(); u++) {
 				if (u % 100 == 0)
-					System.out.println("\tNow u = " + u);
+					System.out.println("\tNow user u = " + u);
 				for (int n = 0; n < docSet.docs.get(u).docWords.length; n++) {
-					// System.out.println("\tNow u: " + u + "\tn: " + n);
+					 //System.out.println("\tNow user u = " + u + "\tDocument n= " + n);
 					if (docSet.docs.get(u).docWords[n] != null)
 						sampleTopicZandExpertE(docSet, u, n);
 					// for (int l = 0; l <

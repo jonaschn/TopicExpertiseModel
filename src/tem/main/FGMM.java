@@ -6,12 +6,12 @@ package tem.main;
  * @author Minghui
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import tem.com.ComUtil;
 import tem.com.MathUtil;
 import tem.com.MatrixUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FGMM implements java.io.Serializable {
 	public double[] mu0;
@@ -40,7 +40,7 @@ public class FGMM implements java.io.Serializable {
 		vector_d = data[0].length;
 		vector_n = data.length;
 
-		System.out.println("vector_d n " + vector_d + " " + vector_n);
+		System.out.println("vector_d: " + vector_d + " vector_n: " + vector_n);
 
 		ksize = inputK;
 		p_mu = new double[ksize][vector_d];
@@ -76,7 +76,7 @@ public class FGMM implements java.io.Serializable {
 		System.out.println();
 
 		// update p_mu p_lambda
-		System.out.print("init p_mu and p_lambda");
+		System.out.println("init p_mu and p_lambda");
 		avgx = new double[p_mu.length][vector_d];
 		derv = new double[p_mu.length][vector_d];
 		diff = new double[p_mu.length][vector_d];

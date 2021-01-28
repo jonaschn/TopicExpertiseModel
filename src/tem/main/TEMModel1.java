@@ -1,16 +1,15 @@
 package tem.main;
 
+import tem.com.ComUtil;
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+import tem.main.TEMModelSampling.ModelParameters;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import tem.com.ComUtil;
-import tem.com.FileUtil;
-import tem.conf.PathConfig;
-import tem.main.ModelComFunc;
-import tem.main.TEMModelSampling.modelparameters;
 
 /**
  * Class for Topic Expertise Model
@@ -68,8 +67,7 @@ public class TEMModel1 implements java.io.Serializable {
 		System.out.println("Construct a null model object");
 	}
 
-	public TEMModel1(modelparameters modelparam) {
-		// TODO Auto-generated constructor stub
+	public TEMModel1(ModelParameters modelparam) {
 		alpha = modelparam.alpha;
 		beta = modelparam.beta;
 		gamma = modelparam.gamma;
