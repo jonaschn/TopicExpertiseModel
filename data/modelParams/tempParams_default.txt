@@ -1,0 +1,17 @@
+// Parameter defaults defined in: TEMModelSampling.java
+
+// Topic Expertise Model
+topicNum    	20
+expertiseNum    3
+
+// Dirichlet priors
+alpha   0.5     // usual value is 50 / K
+beta    0.01
+gamma   0.01
+eta     0.001
+xi      0.01
+
+// Gibbs sampling
+iteration   300
+saveStep    20
+beginSaveIters 5

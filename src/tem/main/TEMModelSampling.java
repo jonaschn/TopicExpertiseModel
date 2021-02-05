@@ -45,6 +45,7 @@ public class TEMModelSampling {
 	 * @return void
 	 */
 	private static void getParametersFromFile(ModelParameters ldaparameters, String parameterFile) {
+		System.out.println("Parameters: " + parameterFile);
 		ArrayList<String> paramLines = new ArrayList<String>();
 		FileUtil.readLines(parameterFile, paramLines);
 		for (String line : paramLines) {

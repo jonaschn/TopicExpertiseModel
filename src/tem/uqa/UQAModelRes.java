@@ -1,17 +1,12 @@
 package tem.uqa;
 
-import java.io.File;
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import tem.com.FileUtil;
-import tem.conf.ConstantConfig;
-import tem.conf.PathConfig;
-import tem.main.Documents;
-import tem.main.TEMModel;
-import tem.main.TEMModelSampling.modelparameters;
 
 public class UQAModelRes implements java.io.Serializable {
 

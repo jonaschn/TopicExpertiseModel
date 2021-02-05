@@ -1,10 +1,8 @@
 package tem.script;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
-
 import tem.com.FileUtil;
+
+import java.util.ArrayList;
 
 public class MergeUser10 {
 
@@ -28,7 +26,7 @@ public class MergeUser10 {
 			String data10PathPost = data10Path + "posts/" + userID10 + ".posts";
 			if(data80IDs.contains(userID10.trim())){
 				//overlap
-				System.out.println("voerlap id: " + userID10);
+				System.out.println("overlap id: " + userID10);
 				overLapIDLines.add(userID10);
 			} else{
 				allIds.add(userID10);

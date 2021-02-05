@@ -1,15 +1,18 @@
+// Parameter config mentioned in paper section 5.1 from:
+// Yang, L., Qiu, M., Gottipati, S., Zhu, F., Jiang, J., Sun, H., & Chen, Z. (2013).
+// CQARank: Jointly model topics and expertise in Community Question Answering.
+// International Conference on Information and Knowledge Management, Proceedings, 99–108.
+// https://doi.org/10.1145/2505515.2505720
+
 // Topic Expertise Model
-topicNum    20
-expertiseNum    3
+topicNum    	15
+expertiseNum    10
 
 // Dirichlet priors
-alpha   0.5
+alpha   3.333333333	// paper mentions 50 / topicNum
 beta    0.01
 gamma   0.01
-eta     0.1
-xi      0.01
+eta     0.001
 
 // Gibbs sampling
-iteration   300
-saveStep    20
-beginSaveIters 5
+iteration   500

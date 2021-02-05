@@ -1,0 +1,16 @@
+// Custom parameter settings used for testing
+
+// Topic Expertise Model
+topicNum    	15
+expertiseNum    10
+
+// Dirichlet priors
+alpha   0.5     // usual value is 50 / K
+beta    0.01
+gamma   0.01
+eta     0.001
+
+// Gibbs sampling
+iteration   5
+saveStep    1
+beginSaveIters 3
