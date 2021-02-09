@@ -1,14 +1,13 @@
 package tem.main;
 
+import tem.com.FileUtil;
+import tem.conf.PathConfig;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import tem.com.FileUtil;
-import tem.conf.PathConfig;
-import tem.main.Documents.Document;
 
 /**Simple evaluation for TEM result 
  * Compute utopics and kuExpertiseScore file
@@ -29,13 +28,11 @@ public class SimpleEvaluate {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
 		String minPostNum = "80";
 		String trainDocfile = PathConfig.modelResPath + "USER" + minPostNum + "/USER" + minPostNum + ".data";
 		Documents trainDocSet = new Documents();
 		trainDocSet = FileUtil.loadClass(trainDocSet, trainDocfile);
-		System.out.println("train terms: " + trainDocSet.termCountMap.size());
-		
+
 		String testDataFolder = PathConfig.testDataPath;
 		Documents testDocSet = new Documents();
 		
@@ -43,14 +40,12 @@ public class SimpleEvaluate {
 		testDocSet.readQATestDocs(testDataFolder, trainDocSet);
 		String testDocfile = testDataFolder + "QATest.data";
 		FileUtil.saveClass(testDocSet, testDocfile);
-		
-		//Document questionDoc = testDocSet.docs.get(0);
-	
-		System.out.println(testDocSet.termCountMap.size());
-		System.out.println(testDocSet.tagCountMap.size());
-		System.out.println(testDocSet.voteCountMap.size());
-		System.out.println(testDocSet.docs.size());
-		
+
+		System.out.println("test terms: " + testDocSet.termCountMap.size());
+		System.out.println("test tag count: " + testDocSet.tagCountMap.size());
+		System.out.println("test vote count: " + testDocSet.voteCountMap.size());
+		System.out.println("test doc size:" + testDocSet.docs.size());
+
 		//trainDocSet.copyTrainDocVocals(testDocSet);
 		//FileUtil.saveClass(trainDocSet, trainDocfile);
 		

@@ -182,6 +182,7 @@ public class LdaModel {
 		String resPath = PathConfig.modelResPath + "LDA/";
 		String modelName = "lda_" + iters;
 		ArrayList<String> lines = new ArrayList<String>();
+		lines.add("topicNum = " + K);
 		lines.add("alpha = " + alpha);
 		lines.add("beta = " + beta);
 		lines.add("topicNum = " + K);

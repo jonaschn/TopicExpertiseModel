@@ -1,6 +1,7 @@
 package tem.main;
 
 import tem.com.FileUtil;
+import tem.conf.ConstantConfig;
 import tem.conf.PathConfig;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class LdaGibbsSampling {
 	 */
 	private static void getParametersFromFile(ModelParameters ldaparameters,
 											  String parameterFile) {
+		System.out.println("Parameters: " + parameterFile);
 		ArrayList<String> paramLines = new ArrayList<String>();
 		FileUtil.readLines(parameterFile, paramLines);
 		for (String line : paramLines) {
@@ -40,25 +42,29 @@ public class LdaGibbsSampling {
 				continue;
 			}
 			String[] lineParts = line.split("\\s+");
-			switch(parameters.valueOf(lineParts[0])){
-			case alpha:
-				ldaparameters.alpha = Float.valueOf(lineParts[1]);
-				break;
-			case beta:
-				ldaparameters.beta = Float.valueOf(lineParts[1]);
-				break;
-			case topicNum:
-				ldaparameters.topicNum = Integer.valueOf(lineParts[1]);
-				break;
-			case iteration:
-				ldaparameters.iteration = Integer.valueOf(lineParts[1]);
-				break;
-			case saveStep:
-				ldaparameters.saveStep = Integer.valueOf(lineParts[1]);
-				break;
-			case beginSaveIters:
-				ldaparameters.beginSaveIters = Integer.valueOf(lineParts[1]);
-				break;
+			try {
+				switch(parameters.valueOf(lineParts[0])) {
+					case alpha:
+						ldaparameters.alpha = Float.valueOf(lineParts[1]);
+						break;
+					case beta:
+						ldaparameters.beta = Float.valueOf(lineParts[1]);
+						break;
+					case topicNum:
+						ldaparameters.topicNum = Integer.valueOf(lineParts[1]);
+						break;
+					case iteration:
+						ldaparameters.iteration = Integer.valueOf(lineParts[1]);
+						break;
+					case saveStep:
+						ldaparameters.saveStep = Integer.valueOf(lineParts[1]);
+						break;
+					case beginSaveIters:
+						ldaparameters.beginSaveIters = Integer.valueOf(lineParts[1]);
+						break;
+				}
+			} catch(IllegalArgumentException e) {
+				System.out.println("Parameter not supported: " + lineParts[0]);
 			}
 		}
 	}
@@ -73,7 +79,6 @@ public class LdaGibbsSampling {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
 		String dataPath = PathConfig.modelResPath + "USER80/";
 		String minPostNum = PathConfig.minPostNum;
 		Documents docSet = new Documents();
@@ -87,9 +92,12 @@ public class LdaGibbsSampling {
 				+ docSet.indexToTagMap.size());
 		System.out.println("indexToVoteMap size : "
 				+ docSet.indexToVoteMap.size());
-		
+
+		String parameterFile = ConstantConfig.LDAPARAMETERFILE;
 		ModelParameters ldaparameters = new ModelParameters();
+		getParametersFromFile(ldaparameters, parameterFile);
 		System.out.println("Topic Num : " + ldaparameters.topicNum);
+
 		LdaModel model = new LdaModel(ldaparameters);
 		System.out.println("1 Initialize the model ...");
 		model.initializeModel(docSet);

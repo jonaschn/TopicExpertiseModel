@@ -67,19 +67,20 @@ public class Documents implements java.io.Serializable{
 	}
 	
 	public void readQATestDocs(String testDataFolder, Documents trainDocSet) {
-		// TODO Auto-generated method stub
-		//Use the same vocalbulary of trianDocSet
+		// Use the same vocabulary as in trainDocSet
 		copyTrainDocVocals(trainDocSet);
 		System.out.println("train terms: " + trainDocSet.termToIndexMap.size());
-		
+
 		System.out.println("after copy terms: " + termToIndexMap.size());
 		System.out.println("after copy votes: " + voteToIndexMap.size());
 		System.out.println("after copy tags: " + tagToIndexMap.size());
 		
 		String questionFile = testDataFolder + "testData.questions";
+		System.out.println("questions file: " + questionFile);
 		ArrayList<String> questionLines = new ArrayList<String>();
 		String answersFolder = testDataFolder + "answers/";
 		String tagsFolder = testDataFolder + "tags/";
+		System.out.println("answers folder: " + answersFolder);
 		System.out.println("tag folder: " + tagsFolder);
 		ArrayList<String> tagsLines = new ArrayList<String>();
 		Stopwords stopwords = new Stopwords();
@@ -156,7 +157,6 @@ public class Documents implements java.io.Serializable{
 				ArrayList<String> indexToVoteMap,
 				Map<String, Integer> voteCountMap, Stopwords stopwords,
 				Porter stemmer, int QAType) {
-			// TODO Auto-generated constructor stub
 			docName = docFile.getName();
 			System.out.println("Now File is : " + docFile.getName());
 			//Read file and initialize document object
