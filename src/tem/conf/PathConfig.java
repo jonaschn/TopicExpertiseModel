@@ -11,6 +11,8 @@ public class PathConfig {
 	public static String modelParamsPath = "data/modelParams/";
 	
 	public static String modelResPath = "data/modelRes/ThreeM09/";
+
+	public static String finalModelPath = "data/modelRes/LA T15 ANW lambda0.2_finalUsed/";
 	
 	public static String minPostNum = "80";
 	

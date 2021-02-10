@@ -1,21 +1,17 @@
 package tem.main;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import tem.com.FileUtil;
 import tem.com.MatrixUtil;
 import tem.conf.PathConfig;
-import tem.main.Documents;
 import tem.main.Documents.Document;
-import tem.main.TEMModel;
 import tem.uqa.UQAModelRes;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * TEM results evaluation
@@ -30,24 +26,24 @@ public class TEMResPro {
 
 	static HashMap<Integer, Integer> userIDToTEMIndexMap = new HashMap<Integer, Integer>();
 	static HashMap<Integer, Integer> TEMIndexToUserIDMap = new HashMap<Integer, Integer>();
-	
+
 	static double [][] LDAtheta;
 	static double [][] LDAphi;
-	
+
 	static UQAModelRes uqaRes = new UQAModelRes();
 	static TEMModel model = new TEMModel();
-	
+
 	static Documents trainDocSet = new Documents();
 	static Documents testDocSet = new Documents();
-	
-	
+
+
 	/**
 	 */
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
 		String trainData = PathConfig.modelResPath + "USER80/USER" + PathConfig.minPostNum + ".data";
-		String testData = "data/modelRes/TestData/QATest.data";
-		
+		String testData = PathConfig.testDataPath + "QATest.data";
+
 		//Get LDA result
 		String LDAThetaFile = PathConfig.modelResPath + "LDA/lda_500.theta";
 		String LDAPhiFile = PathConfig.modelResPath + "LDA/lda_500.phi";
@@ -64,15 +60,14 @@ public class TEMResPro {
 		System.out.println(uqaRes.indexToUserMap.size());
 		
 		//Get userlist
-		
+
 		trainDocSet = FileUtil.loadClass(trainDocSet, trainData);
 		for (int u = 0; u < trainDocSet.docs.size(); u++) {
 			userIDToTEMIndexMap.put(trainDocSet.docs.get(u).ownerUserID[0], u);
 			TEMIndexToUserIDMap.put(u, trainDocSet.docs.get(u).ownerUserID[0]);
 		}
-		//System.out.println(userIDToTEMIndexMap);
+		System.out.println(userIDToTEMIndexMap);
 
-		
 		testDocSet = FileUtil.loadClass(testDocSet, testData);
 		
 		String[] modelNames = {"TEPR", "TEM", "TSPR", "PR", "ID","UQA"};
@@ -85,19 +80,20 @@ public class TEMResPro {
 				//for(String E : ENums){
 					String modelFile = PathConfig.modelResPath + "/USER" + PathConfig.minPostNum + "/Model_E10_T" + T + ".model";
 					//Get TEM model result
-					
+
 					// load model
 					model = FileUtil.loadClass(model, modelFile);
-					System.out.println(model.K);
-					
+					assert model.K == Integer.parseInt(T) : "Loaded model has " + model.K + " topics, not " + T;
+					System.out.println(modelName + " (" + model.K + " topics) evaluating ...");
+
 					String outputfile = PathConfig.modelResPath
 							+ "/USER" + PathConfig.minPostNum + "/" + modelName + "_E10T" + T +".ModelFileVoteRes.model";
 					try {
 						estVotes(testDocSet, outputfile,  modelName, T);
+						System.out.println(modelName + " (" + model.K + " topics) successfully done!");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-						System.out.println(modelName +  " Done!");
 					}
 			} else {
 				String modelFile = PathConfig.modelResPath + "/USER" + PathConfig.minPostNum + "/Model_E" + 8 + "_T15.model";
@@ -125,8 +121,7 @@ public class TEMResPro {
 			map.put(docSet.docs.get(0).postID[q], q);
 		}
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				outputfile)));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputfile)));
 
 		Post newpost = new Post();
 
@@ -147,7 +142,7 @@ public class TEMResPro {
 				if (tqid == qid) {
 					newpost = new Post(docSet.docs.get(q), a,
 							docSet.indexToVoteMap, modelName , T);
-					// compute distance between new thetaA and tetaQ
+					// compute distance between new thetaA and thetaQ
 					if (newpost.flag) {
 						double sim = 1;
 						if(modelName.equals("TEM") || modelName.equals("TEPR") || modelName.equals("TSPR") || modelName.equals("UQA")){
@@ -158,18 +153,18 @@ public class TEMResPro {
 							} else {
 								System.err.println("exp type error!");
 							}
-							
+
 						} else {
 							sim = 1;
 						}
 						double auth = newpost.estAuth;
-						//askerID	answerID	answerVote	topicSimilarity	authScore	topicSimilarity*authScore KLAQ KLQA	
+						//askerID	answerID	answerVote	topicSimilarity	authScore	topicSimilarity*authScore KLAQ KLQA
 						//Matlab only use 1 2 3 6
 						//For TEM + TEPR, The only different is authScore part.
-						//The authScore part should use the results of TEPR algorithm 
-						//Rank answers based on the 6th column 
+						//The authScore part should use the results of TEPR algorithm
+						//Rank answers based on the 6th column
 						//Could modify rank col in Matlab code
-						
+
 						writer.write(docSet.docs.get(0).postID[q - 1]
 								+ "\t" + docSet.docs.get(q).ownerUserID[a]
 								+ "\t" + newpost.vote + "\t" + sim + "\t"
@@ -206,7 +201,7 @@ public class TEMResPro {
 			if (userIDToTEMIndexMap.containsKey(tmpPostID)) {
 				userid = userIDToTEMIndexMap.get(tmpPostID);
 				vote = Float.parseFloat(indexToVoteMap.get(doc.votes[n]));
-				
+
 				if(modelName.equals("TEPR") || (modelName.equals("TEM"))){
 					float[] userTheta = model.theta[userid];
 					thetaU = new double[userTheta.length];
@@ -229,7 +224,7 @@ public class TEMResPro {
 				//TSPR use topic information from LDA output
 				//PR and ID only have authority score
 				//UQA only have topic similarity score
-				
+
 				EstTheta(doc.docWords[n], doc.tags[n], modelName);
 				EstAuthority(modelName, T);
 			} else {
@@ -284,7 +279,7 @@ public class TEMResPro {
 				ModelComFunc.reAssignP(probs, overflow);
 				thetaD = probs.clone();
 				MatrixUtil.norm1(thetaD);
-			} else if(modelName == "UQA"){ 
+			} else if(modelName == "UQA"){
 				System.out.println("topicNum" + model.K);
 				double[] probs = new double[model.K];
 				int[] overflow = new int[model.K];
@@ -333,7 +328,8 @@ public class TEMResPro {
 					}
 				}
 			} else if(modelName.equals("TEPR")){
-				String finalPRALLFile = PathConfig.modelResPath + "USER80/TEPR.E10T" + T + "finalPRAll";
+//				String finalPRALLFile = PathConfig.modelResPath + "USER80/TEPR.E10T" + T + "finalPRAll";
+				String finalPRALLFile = PathConfig.finalModelPath + "TEPR.E10T" + T + "finalPRAll";
 				//System.out.println("In Estauthority TEPR userid = " + userid);
 				double [][] tepr = FileUtil.read2DArray(finalPRALLFile);
 				for (int i = 0; i < thetaU.length; i++) {
@@ -342,28 +338,31 @@ public class TEMResPro {
 					} else {
 						estAuth += thetaU[i] * tepr[i][userid];
 					}
-					
+
 				}
 			} else if (modelName.equals("TSPR")){
 				// authority score based on TSPR result
-				// In TSPR, we use tspr score repalce authrity score here
-				String finalPRALLFile = PathConfig.modelResPath + "USER80/TSPR.finalPRAll";
+				// In TSPR, we use tspr score replace authority score here
+//				String finalPRALLFile = PathConfig.modelResPath + "USER80/TSPR.finalPRAll";
+				String finalPRALLFile = PathConfig.finalModelPath + "TSPR.finalPRAll";
 				double [][] tspr = FileUtil.read2DArray(finalPRALLFile);
 				for (int i = 0; i < LDAtheta[0].length; i++) {
 					estAuth += LDAtheta[userid][i] * tspr[i][userid];
 				}
 			} else if (modelName.equals("PR")) {
 				// In PR, the authority is PR score which has no relation with topic
-				String finalPRALLFile = PathConfig.modelResPath + "USER80/PR.finalPRAll";
+//				String finalPRALLFile = PathConfig.modelResPath + "USER80/PR.finalPRAll";
+				String finalPRALLFile = PathConfig.finalModelPath + "PR.finalPRAll";
 				//System.out.println("In Estauthority TEPR userid = " + userid);
 				double [][] pr = FileUtil.read2DArray(finalPRALLFile);
 				estAuth = (float) pr[0][userid];
 			} else if (modelName.equals("ID")) {
-				String finalPRALLFile = PathConfig.modelResPath + "USER80/ID.finalPRAll";
+//				String finalPRALLFile = PathConfig.modelResPath + "USER80/ID.finalPRAll";
+				String finalPRALLFile = PathConfig.finalModelPath + "ID.finalPRAll";
 				//System.out.println("In Estauthority TEPR userid = " + userid);
 				double [][] id = FileUtil.read2DArray(finalPRALLFile);
 				estAuth = (float) id[0][userid];
-			} else if(modelName.equals("UQA")){ 
+			} else if(modelName.equals("UQA")){
 				estAuth = 1f;
 			} else {
 				System.out.println("model name error!");
