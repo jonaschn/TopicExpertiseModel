@@ -40,13 +40,12 @@ public class TEMModelSampling {
 	 * Get parameters from configuring file. If the configuring file has value
 	 * in it, use the value. Else the default value in program will be used
 	 * 
-	 * @param ldaparameters
-	 * @param parameterFile
-	 * @return void
+	 * @param modelParameters	ModelParameters object
+	 * @param parameterFile		path to file
 	 */
-	private static void getParametersFromFile(ModelParameters ldaparameters, String parameterFile) {
+	private static void getParametersFromFile(ModelParameters modelParameters, String parameterFile) {
 		System.out.println("Parameters: " + parameterFile);
-		ArrayList<String> paramLines = new ArrayList<String>();
+		ArrayList<String> paramLines = new ArrayList<>();
 		FileUtil.readLines(parameterFile, paramLines);
 		for (String line : paramLines) {
 			// ignore comments and empty lines in config file
@@ -56,34 +55,34 @@ public class TEMModelSampling {
 			String[] lineParts = line.split("\\s+");
 			switch (parameters.valueOf(lineParts[0])) {
 			case alpha:
-				ldaparameters.alpha = Float.valueOf(lineParts[1]);
+				modelParameters.alpha = Float.parseFloat(lineParts[1]);
 				break;
 			case beta:
-				ldaparameters.beta = Float.valueOf(lineParts[1]);
+				modelParameters.beta = Float.parseFloat(lineParts[1]);
 				break;
 			case gamma:
-				ldaparameters.gamma = Float.valueOf(lineParts[1]);
+				modelParameters.gamma = Float.parseFloat(lineParts[1]);
 				break;
 			case eta:
-				ldaparameters.eta = Float.valueOf(lineParts[1]);
+				modelParameters.eta = Float.parseFloat(lineParts[1]);
 				break;
 			case xi:
-				ldaparameters.xi = Float.valueOf(lineParts[1]);
+				modelParameters.xi = Float.parseFloat(lineParts[1]);
 				break;
 			case topicNum:
-				ldaparameters.topicNum = Integer.valueOf(lineParts[1]);
+				modelParameters.topicNum = Integer.parseInt(lineParts[1]);
 				break;
 			case expertiseNum:
-				ldaparameters.expertiseNum = Integer.valueOf(lineParts[1]);
+				modelParameters.expertiseNum = Integer.parseInt(lineParts[1]);
 				break;
 			case iteration:
-				ldaparameters.iteration = Integer.valueOf(lineParts[1]);
+				modelParameters.iteration = Integer.parseInt(lineParts[1]);
 				break;
 			case saveStep:
-				ldaparameters.saveStep = Integer.valueOf(lineParts[1]);
+				modelParameters.saveStep = Integer.parseInt(lineParts[1]);
 				break;
 			case beginSaveIters:
-				ldaparameters.beginSaveIters = Integer.valueOf(lineParts[1]);
+				modelParameters.beginSaveIters = Integer.parseInt(lineParts[1]);
 				break;
 			}
 		}
@@ -98,8 +97,7 @@ public class TEMModelSampling {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public static void main(String[] args) throws IOException,
-			ClassNotFoundException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		/*boolean local = true; // run on local machine
 		//local = !local; // run on server
 
@@ -137,6 +135,7 @@ public class TEMModelSampling {
 		File f = new File(docfile);
 		if (! f.isFile()) {
 			System.out.println("0 Preprocessing training data ...");
+			// the data is already grouped by users
 			docSet.readDocs(originalDocsPath, minPostNum);
 
 			// Delete terms that appear only n times
@@ -218,6 +217,7 @@ public class TEMModelSampling {
 				}
 			}
 		 }
+		System.out.println("userCount: " + docSet.docs.size());
 		System.out.println("questionsCount: " + questionCount);
 		System.out.println("answerCount: " + answerCount);
 		 
@@ -230,7 +230,7 @@ public class TEMModelSampling {
 		model.saveIteratedModel(modelparam.iteration, docSet, minPostNum);
 
 		// save model in serialized data 
-		String modelName = "E" + model.ENum + "_T" + model.K;
+		String modelName = "Model_E" + model.ENum + "_T" + model.K;
 		FileUtil.saveClass(model, PathConfig.modelResPath + "USER" + minPostNum
 				+ "/" + modelName + ".model");
 		System.out.println("Done!");
