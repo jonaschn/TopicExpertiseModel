@@ -23,29 +23,29 @@ import java.util.regex.Pattern;
 
 public class Documents implements java.io.Serializable{
 	private static final long serialVersionUID = 2L;
-	
-	ArrayList<Document> docs; 
+
+	ArrayList<Document> docs;
 	//term map
 	Map<String, Integer> termToIndexMap;
 	ArrayList<String> indexToTermMap;
 	Map<String,Integer> termCountMap;
-	
+
 	//tag map
 	Map<String, Integer> tagToIndexMap;
 	ArrayList<String> indexToTagMap;
 	Map<String,Integer> tagCountMap;
-	
+
 	//vote map
 	Map<String, Integer> voteToIndexMap;
 	ArrayList<String> indexToVoteMap;
 	Map<String,Integer> voteCountMap;
-	
+
 	public Documents(){
 		docs = new ArrayList<Document>();
 		termToIndexMap = new HashMap<String, Integer>();
 		indexToTermMap = new ArrayList<String>();
 		termCountMap = new HashMap<String, Integer>();
-		
+
 		tagToIndexMap = new HashMap<String, Integer>();
 		indexToTagMap = new ArrayList<String>();
 		tagCountMap = new HashMap<String, Integer>();
@@ -54,7 +54,7 @@ public class Documents implements java.io.Serializable{
 		indexToVoteMap = new ArrayList<String>();
 		voteCountMap = new HashMap<String, Integer>();
 	}
-	
+
 	public void readDocs(String docsPath, String minPostNum){
 		// Preprocessing including stop word removal and stemming
 		Stopwords stopwords = new Stopwords();
@@ -65,7 +65,7 @@ public class Documents implements java.io.Serializable{
 			docs.add(doc);
 		}
 	}
-	
+
 	public void readQATestDocs(String testDataFolder, Documents trainDocSet) {
 		// Use the same vocabulary as in trainDocSet
 		copyTrainDocVocals(trainDocSet);
@@ -74,7 +74,7 @@ public class Documents implements java.io.Serializable{
 		System.out.println("after copy terms: " + termToIndexMap.size());
 		System.out.println("after copy votes: " + voteToIndexMap.size());
 		System.out.println("after copy tags: " + tagToIndexMap.size());
-		
+
 		String questionFile = testDataFolder + "testData.questions";
 		System.out.println("questions file: " + questionFile);
 		ArrayList<String> questionLines = new ArrayList<String>();
@@ -89,19 +89,26 @@ public class Documents implements java.io.Serializable{
 		Document doc = new Document(new File(questionFile), termToIndexMap, indexToTermMap, termCountMap,
 				tagToIndexMap, indexToTagMap, tagCountMap, voteToIndexMap, indexToVoteMap, voteCountMap, stopwords, stemmer, 1);
 		docs.add(doc);
-		
+
 		//Print tags of questions
 		FileUtil.readLines(questionFile, questionLines);
-		for(String questionLine : questionLines){
+		for (String questionLine : questionLines) {
 			String[] qTokens = questionLine.split("\t");
-			String qTagFile = tagsFolder + qTokens[0] + ".tags";
+			String questionId = qTokens[0];
+			String postTypeId = qTokens[1];
+			assert postTypeId.equals("1") : "This post (" + postTypeId + ") is not a question (postTypeId=1)";
+			String tags = qTokens[16];
+			int answerCount = Integer.parseInt(qTokens[17]);
+
+			// Write .tags file for each question into tagsFolder
 			tagsLines.clear();
-			for(int i = 0; i < Integer.valueOf(qTokens[17]); i++){
-				tagsLines.add( qTokens[0] + "\t" + qTokens[16]);
+			for (int i = 0; i < answerCount; i++) {
+				tagsLines.add(questionId + "\t" + tags);
 			}
+			String qTagFile = tagsFolder + questionId + ".tags";
 			FileUtil.writeLines(qTagFile, tagsLines);
 		}
-		
+
 		//Read test answer files
 		for(File docFile : new File(answersFolder).listFiles()){
 			doc = new Document(docFile, termToIndexMap, indexToTermMap, termCountMap,
@@ -109,43 +116,42 @@ public class Documents implements java.io.Serializable{
 			docs.add(doc);
 		}
 	}
-	
+
 	public void copyTrainDocVocals(Documents trainDocSet) {
-		// TODO Auto-generated method stub
 
 		this.termToIndexMap.putAll(trainDocSet.termToIndexMap);
 		this.termCountMap.putAll(trainDocSet.termCountMap);
 		this.indexToTermMap.addAll(trainDocSet.indexToTermMap);
-		
+
 		this.tagToIndexMap.putAll(trainDocSet.tagToIndexMap);
 		this.tagCountMap.putAll(trainDocSet.tagCountMap);
 		this.indexToTagMap.addAll(trainDocSet.indexToTagMap);
-		
+
 		this.voteToIndexMap.putAll(trainDocSet.voteToIndexMap);
 		this.voteCountMap.putAll(trainDocSet.voteCountMap);
 		this.indexToVoteMap.addAll(trainDocSet.indexToVoteMap);
 	}
 
-	public static class Document implements java.io.Serializable {	
-		
+	public static class Document implements java.io.Serializable {
+
 		private static final long serialVersionUID = 1L;
 		String docName; // document name which includes user id
-		int [] postID;//N postID
-		int [] postTypeID;//N post type ID. 1 denotes question; 2 denotes answers
-		int [] parentID;//N parent ID. Only used when postTypeID is 2; ID of the question that answered by it
-		int [] acceptedAnswerID;//N accepted answer ID; only present if postTypeID is 1;
-		//ArrayList<String> creationDate = new ArrayList<String>();//N created date of the post
-		int [] votes; //N
-		//int [] viewCount;//N 
-		int [][] docWords; //N*L   N posts * L words
-		int [][] tags; //N*P N posts, the number of tags for each posts are P_n
-		int [] ownerUserID;//N
-		//ArrayList<String> closedDate = new ArrayList<String>();//N
-		ArrayList<String> title = new ArrayList<String>();//N
-		//int [] answerCount;//N
-		//int [] commentCount;//N
-		//int [] favoriteCount;//N
-		
+		int[] postID; //N postID
+		int[] postTypeID; //N post type ID. 1 denotes question; 2 denotes answers
+		int[] parentID; //N parent ID. Only used when postTypeID is 2; ID of the question that answered by it
+		int[] acceptedAnswerID; //N accepted answer ID; only present if postTypeID is 1;
+		//ArrayList<String> creationDate = new ArrayList<String>(); //N created date of the post
+		int[] votes; //N
+        //int[] viewCount; //N
+		int[][] docWords; //N*L   N posts * L words
+		int[][] tags; //N*P N posts, the number of tags for each posts are P_n
+		int[] ownerUserID; //N
+		//ArrayList<String> closedDate = new ArrayList<String>(); //N
+		ArrayList<String> title = new ArrayList<String>(); //N
+		//int[] answerCount; //N
+		//int[] commentCount; //N
+		//int[] favoriteCount; //N
+
 		//Constructor for QA test post
 		public Document(File docFile, Map<String, Integer> termToIndexMap,
 				ArrayList<String> indexToTermMap,
@@ -163,7 +169,7 @@ public class Documents implements java.io.Serializable{
 			ArrayList<String> docLines = new ArrayList<String>();
 			ArrayList<String> docTags = new ArrayList<String>();
 			FileUtil.readLines(docFile.getAbsolutePath(), docLines);
-			
+
 			//Initialize variables in document object
 			int linesSize = docLines.size();
 			System.out.println("docLines size: " + linesSize);
@@ -184,7 +190,7 @@ public class Documents implements java.io.Serializable{
 				String tagFile = PathConfig.testDataPath + "tags/" + docLines.get(0).split("\t")[2] + ".tags";
 				FileUtil.readLines(tagFile, docTags);
 			}
-			
+
 			for(int i = 0; i < linesSize; i++){
 				String[] lineTokens = docLines.get(i).split("\t");
 				if(lineTokens.length != 20){
@@ -200,7 +206,7 @@ public class Documents implements java.io.Serializable{
 				ownerUserID[i] = Integer.parseInt(lineTokens[8]);
 				//closedDate.add(lineTokens[14]);
 				title.add(lineTokens[15]);
-				
+
 				//Process tags
 				//Build index
 				String tagString;
@@ -218,11 +224,11 @@ public class Documents implements java.io.Serializable{
 						tagToIndexMap.put(tagTrimed, tagToIndexMap.size());
 						indexToTagMap.add(tagTrimed);
 						tagCountMap.put(tagTrimed, new Integer(0));
-					} 
+					}
 					tagCountMap.put(tagTrimed, tagCountMap.get(tagTrimed) + new Integer(1));
 					tags[i][j] = tagToIndexMap.get(tagTrimed);
 				}
-				
+
 				//Process votes
 				//Put more votes
 				String vote = ProcessVote(lineTokens[5]);
@@ -230,17 +236,17 @@ public class Documents implements java.io.Serializable{
 					voteToIndexMap.put(vote, voteToIndexMap.size());
 					indexToVoteMap.add(vote);
 					voteCountMap.put(vote, new Integer(0));
-				} 
+				}
 				voteCountMap.put(vote, voteCountMap.get(vote) + new Integer(1));
 				votes[i] = voteToIndexMap.get(vote);
-				
+
 			    //Preprocess post  body
 				String originalPost = lineTokens[7];
 				int maxWordLength = 30;
 				String preprocessedPost = preprocessPost(originalPost, stemmer, maxWordLength);
 				ArrayList<String> words = new ArrayList<String>();
 				FileUtil.tokenize(preprocessedPost, words);
-				
+
 				docWords[i] = new int[words.size()];
 				for (int j = 0; j < words.size(); j++) {
 					String wordString = words.get(j).toLowerCase().trim();
@@ -248,13 +254,13 @@ public class Documents implements java.io.Serializable{
 						termToIndexMap.put(wordString, termToIndexMap.size());
 						indexToTermMap.add(wordString);
 						termCountMap.put(wordString, new Integer(0));
-					} 
+					}
 					termCountMap.put(wordString, termCountMap.get(wordString) + new Integer(1));
 					docWords[i][j] = termToIndexMap.get(wordString);
 				}
 			}
 		}
-		
+
 		public Document(File docFile, Map<String, Integer> termToIndexMap, ArrayList<String> indexToTermMap, Map<String, Integer> termCountMap,
 			Map<String, Integer> tagToIndexMap, ArrayList<String> indexToTagMap, Map<String,Integer> tagCountMap,  Map<String, Integer> voteToIndexMap,
 			ArrayList<String> indexToVoteMap, Map<String,Integer> voteCountMap, Stopwords stopwords, Porter stemmer, String minPostNum){
@@ -264,7 +270,7 @@ public class Documents implements java.io.Serializable{
 			ArrayList<String> docLines = new ArrayList<String>();
 			ArrayList<String> docTags = new ArrayList<String>();
 			FileUtil.readLines(docFile.getAbsolutePath(), docLines);
-			
+
 			//Initialize variables in document object
 			int linesSize = docLines.size();
 			System.out.println("docLines size: " + linesSize);
@@ -286,7 +292,7 @@ public class Documents implements java.io.Serializable{
 				String tagFile = PathConfig.originalDataPath + "USER" +minPostNum + "/tags/" + docLines.get(0).split("\t")[8] + ".tags";
 				FileUtil.readLines(tagFile, docTags);
 			}
-			
+
 			for(int i = 0; i < linesSize; i++){
 				String[] lineTokens = docLines.get(i).split("\t");
 				if(lineTokens.length != 20){
@@ -302,7 +308,7 @@ public class Documents implements java.io.Serializable{
 				ownerUserID[i] = Integer.parseInt(lineTokens[8]);
 				//closedDate.add(lineTokens[14]);
 				title.add(lineTokens[15]);
-				
+
 				//Process tags
 				//Build index
 				String tagString;
@@ -320,11 +326,11 @@ public class Documents implements java.io.Serializable{
 						tagToIndexMap.put(tagTrimed, tagToIndexMap.size());
 						indexToTagMap.add(tagTrimed);
 						tagCountMap.put(tagTrimed, new Integer(0));
-					} 
+					}
 					tagCountMap.put(tagTrimed, tagCountMap.get(tagTrimed) + new Integer(1));
 					tags[i][j] = tagToIndexMap.get(tagTrimed);
 				}
-				
+
 				//Process votes
 				//Bin some votes to the same value to add redundancy
 				//Build index
@@ -333,10 +339,10 @@ public class Documents implements java.io.Serializable{
 					voteToIndexMap.put(vote, voteToIndexMap.size());
 					indexToVoteMap.add(vote);
 					voteCountMap.put(vote, new Integer(0));
-				} 
+				}
 				voteCountMap.put(vote, voteCountMap.get(vote) + new Integer(1));
 				votes[i] = voteToIndexMap.get(vote);
-				
+
 				//answerCount[i] = Integer.parseInt(lineTokens[17]);
 				//commentCount[i] = Integer.parseInt(lineTokens[18]);
 				//favoriteCount[i] = Integer.parseInt(lineTokens[19]);
@@ -347,7 +353,7 @@ public class Documents implements java.io.Serializable{
 				String preprocessedPost = preprocessPost(originalPost, stemmer, maxWordLength);
 				ArrayList<String> words = new ArrayList<String>();
 				FileUtil.tokenize(preprocessedPost, words);
-				
+
 				docWords[i] = new int[words.size()];
 				for (int j = 0; j < words.size(); j++) {
 					String wordString = words.get(j).toLowerCase().trim();
@@ -355,7 +361,7 @@ public class Documents implements java.io.Serializable{
 						termToIndexMap.put(wordString, termToIndexMap.size());
 						indexToTermMap.add(wordString);
 						termCountMap.put(wordString, new Integer(0));
-					} 
+					}
 					termCountMap.put(wordString, termCountMap.get(wordString) + new Integer(1));
 					docWords[i][j] = termToIndexMap.get(wordString);
 				}
@@ -380,15 +386,15 @@ public class Documents implements java.io.Serializable{
 		private String preprocessPost(String originalPost, Porter stemmer, int maxWordLength) {
 			// TODO Auto-generated method stub
 			//System.out.println("0 before preprocess : " + originalPost);
-			
+
 			//1 tokenize text
 			List<String> sents = StanfordTokenizer.tokenizeSents(originalPost);
 			//System.out.println("1 after tokenize: ");
-			  //for(String sentence:sents) { 
+			  //for(String sentence:sents) {
 			   //  System.out.print(sentence + " ");
 			  //}
 			 //System.out.println();
-			 
+
 			//2 discard any code snippets in posts
 			boolean codeFlag = false;
 			String prePost = "";
@@ -406,11 +412,11 @@ public class Documents implements java.io.Serializable{
 				}
 			}
 			//System.out.println("2 after remove code: " + prePost);
-			
+
 			//3 remove all HTML tags. eg. <b></b> <a href="">
 			prePost = prePost.replaceAll("<[^>]*>", "");
 			//System.out.println("3 after remove html tag: " + prePost);
-			
+
 			//4 remove stop words and stem text
 			//Currently skip stem
 			String resPost = "";
@@ -420,9 +426,9 @@ public class Documents implements java.io.Serializable{
 					resPost += word + " ";
 				}
 			}
-			
+
 			//System.out.println("4 remove stop words and stem text RES : " + resPost);
-			
+
 			//5 optional step: remove words which appear less than 5 times
 			return resPost;
 		}
@@ -433,7 +439,7 @@ public class Documents implements java.io.Serializable{
 			Pattern MY_PATTERN = Pattern.compile(".*[a-zA-Z]+.*");
 			Matcher m = MY_PATTERN.matcher(string);
 			// filter @xxx and URL
-			if(string.matches(".*www\\..*") || string.matches(".*\\.com.*") || 
+			if(string.matches(".*www\\..*") || string.matches(".*\\.com.*") ||
 					string.matches(".*http:.*") )
 				return true;
 			if (!m.matches()) {
@@ -449,18 +455,18 @@ public class Documents implements java.io.Serializable{
 		Map<String, Integer> newTermToIndexMap = new HashMap<String, Integer>();
 		ArrayList<String> newIndexToTermMap = new ArrayList<String>();
 		Map<String, Integer> newTermCountMap = new HashMap<String, Integer>();
-		
+
 		for(String term : this.termCountMap.keySet()){
 			if(this.termCountMap.get(term) >= minTimes){
 				if (!newTermToIndexMap.containsKey(term)) {
 					newTermToIndexMap.put(term, newTermToIndexMap.size());
 					newIndexToTermMap.add(term);
 					newTermCountMap.put(term, new Integer(0));
-				} 
+				}
 				newTermCountMap.put(term, newTermCountMap.get(term) + new Integer(1));
 			}
 		}
-		
+
 		//Update docWords
 		for(int u = 0; u < this.docs.size(); u++){
 			int[][] newDocWords = new int[this.docs.get(u).docWords.length][];
@@ -483,9 +489,8 @@ public class Documents implements java.io.Serializable{
 			}
 			this.docs.get(u).docWords = newDocWords;
 		}
-		
+
 		this.indexToTermMap = newIndexToTermMap;
-		this.termCountMap.clear();
 		this.termCountMap.clear();
 		this.termToIndexMap.putAll(newTermToIndexMap);
 		this.termCountMap.putAll(newTermCountMap);
