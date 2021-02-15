@@ -7,10 +7,7 @@ import tem.parser.Porter;
 import tem.parser.StanfordTokenizer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +50,44 @@ public class Documents implements java.io.Serializable{
 		voteToIndexMap = new HashMap<String, Integer>();
 		indexToVoteMap = new ArrayList<String>();
 		voteCountMap = new HashMap<String, Integer>();
+	}
+	public void print(String prefix){
+		System.out.println(prefix + " terms: " + termCountMap.size());
+		System.out.println(prefix + " tag count: " + tagCountMap.size());
+		System.out.println(prefix + " vote count: " + voteCountMap.size());
+		System.out.println(prefix + " doc size: " + docs.size());
+		int questionCount;
+		int answerCount = 0;
+		if (prefix.equals("train")){
+			//Count questions and answers
+			questionCount = 0;
+			for (Document doc : docs) {
+				for (int n = 0; n < doc.docWords.length; n++) {
+					if (doc.postTypeID[n] == 1) {
+						questionCount++;
+					} else {
+						answerCount++;
+					}
+				}
+			}
+			System.out.println(prefix + " user count: " + docs.size());
+		} else {
+			// Count questions and answers
+			questionCount = docs.get(0).postID.length;
+			Set<Integer> userIDs = new HashSet<>();
+			// d = 0 corresponds to testData.questions (therefore skip it)
+			for (int d = 1; d < docs.size(); d++) {
+				Document doc = docs.get(d);
+				for (int n = 0; n < doc.postID.length; n++) {
+					assert doc.postTypeID[n] == 2 : "Post " + doc.postID[n] + " should be an answer, not a question";
+					answerCount++;
+					userIDs.add(doc.ownerUserID[n]);
+				}
+			}
+			System.out.println(prefix + " user count: " + userIDs.size());
+		}
+		System.out.println(prefix + " questions count: " + questionCount);
+		System.out.println(prefix + " answers count: " + answerCount);
 	}
 
 	public void readDocs(String docsPath, String minPostNum){
@@ -152,7 +187,7 @@ public class Documents implements java.io.Serializable{
 		//int[] commentCount; //N
 		//int[] favoriteCount; //N
 
-		//Constructor for QA test post
+		// Constructor for QA test posts
 		public Document(File docFile, Map<String, Integer> termToIndexMap,
 				ArrayList<String> indexToTermMap,
 				Map<String, Integer> termCountMap,
@@ -261,6 +296,7 @@ public class Documents implements java.io.Serializable{
 			}
 		}
 
+		// Constructor for QA train posts
 		public Document(File docFile, Map<String, Integer> termToIndexMap, ArrayList<String> indexToTermMap, Map<String, Integer> termCountMap,
 			Map<String, Integer> tagToIndexMap, ArrayList<String> indexToTagMap, Map<String,Integer> tagCountMap,  Map<String, Integer> voteToIndexMap,
 			ArrayList<String> indexToVoteMap, Map<String,Integer> voteCountMap, Stopwords stopwords, Porter stemmer, String minPostNum){
@@ -369,7 +405,6 @@ public class Documents implements java.io.Serializable{
 		}
 
 		private String ProcessVote(String vote) {
-			// TODO Auto-generated method stub
 			/*int v = Integer.valueOf(vote);
 			int bin;
 			if(v < 15) {
@@ -384,7 +419,6 @@ public class Documents implements java.io.Serializable{
 		}
 
 		private String preprocessPost(String originalPost, Porter stemmer, int maxWordLength) {
-			// TODO Auto-generated method stub
 			//System.out.println("0 before preprocess : " + originalPost);
 
 			//1 tokenize text
@@ -434,7 +468,6 @@ public class Documents implements java.io.Serializable{
 		}
 
 		public static boolean isNoiseWord(String string) {
-			// TODO Auto-generated method stub
 			string = string.toLowerCase().trim();
 			Pattern MY_PATTERN = Pattern.compile(".*[a-zA-Z]+.*");
 			Matcher m = MY_PATTERN.matcher(string);
@@ -450,7 +483,6 @@ public class Documents implements java.io.Serializable{
 	}
 
 	public void deleteRareTerms(int minTimes) {
-		// TODO Auto-generated method stub
 		//Update term map
 		Map<String, Integer> newTermToIndexMap = new HashMap<String, Integer>();
 		ArrayList<String> newIndexToTermMap = new ArrayList<String>();
