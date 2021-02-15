@@ -123,7 +123,7 @@ public class TEMModelSampling {
 				+ minPostNum + "/posts/";
 		//data/modelRes/ThreeM09/USER80
 		String resultPath = PathConfig.modelResPath + "USER" + minPostNum + "/";
-		String parameterFile = ConstantConfig.LDAPARAMETERFILE;
+		String parameterFile = ConstantConfig.TEMPARAMETERFILE;
 
 		ModelParameters modelparam = new ModelParameters();
 		getParametersFromFile(modelparam, parameterFile);

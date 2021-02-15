@@ -1,0 +1,14 @@
+// Custom parameter settings used for experimenting
+// The paper does not mention the exact LDA parameter settings
+
+// Topic Expertise Model
+topicNum    	15
+
+// Dirichlet priors
+alpha   1f     // usual value is 50 / K
+beta    0.1f
+
+// Gibbs sampling
+iteration   5
+saveStep    1
+beginSaveIters 3

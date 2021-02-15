@@ -185,7 +185,6 @@ public class LdaModel {
 		lines.add("topicNum = " + K);
 		lines.add("alpha = " + alpha);
 		lines.add("beta = " + beta);
-		lines.add("topicNum = " + K);
 		lines.add("docNum = " + M);
 		lines.add("termNum = " + V);
 		lines.add("iterations = " + iterations);

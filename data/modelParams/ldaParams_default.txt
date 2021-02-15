@@ -1,0 +1,13 @@
+// Parameter defaults defined in: LdaGibbsSampling.java
+
+// Topic Expertise Model
+topicNum    	15
+
+// Dirichlet priors
+alpha   1f     // usual value is 50 / K
+beta    0.1f
+
+// Gibbs sampling
+iteration   500
+saveStep    20
+beginSaveIters 440

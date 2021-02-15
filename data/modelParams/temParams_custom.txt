@@ -1,8 +1,8 @@
-// Custom parameter settings used for testing
+// Custom parameter settings used for experimenting
 
 // Topic Expertise Model
-topicNum    	15
-expertiseNum    10
+topicNum    	5
+expertiseNum    3
 
 // Dirichlet priors
 alpha   0.5     // usual value is 50 / K
