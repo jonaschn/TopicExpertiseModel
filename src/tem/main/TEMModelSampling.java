@@ -204,22 +204,7 @@ public class TEMModelSampling {
 		// System.out.println(vote + "\t" + docSet.voteCountMap.get(vote));
 		// }
 
-		//Count questions and answers
-		int questionCount = 0;
-		int answerCount = 0;
-		 for (int d = 0; d < docSet.docs.size(); d++) {
-			Document doc = docSet.docs.get(d);
-			for(int n = 0; n < doc.docWords.length; n++){
-				if(doc.postTypeID[n] == 1){
-					questionCount++;
-				} else {
-					answerCount++;
-				}
-			}
-		 }
-		System.out.println("userCount: " + docSet.docs.size());
-		System.out.println("questionsCount: " + questionCount);
-		System.out.println("answerCount: " + answerCount);
+		docSet.print("train");
 		 
 		TEMModel model = new TEMModel(modelparam);
 		System.out.println("1 Initialize the model ...");

@@ -36,15 +36,14 @@ public class SimpleEvaluate {
 		String testDataFolder = PathConfig.testDataPath;
 		Documents testDocSet = new Documents();
 		
-		
+		// Read test data and save to disk for later evaluation in TEMResPro
 		testDocSet.readQATestDocs(testDataFolder, trainDocSet);
 		String testDocfile = testDataFolder + "QATest.data";
 		FileUtil.saveClass(testDocSet, testDocfile);
 
-		System.out.println("test terms: " + testDocSet.termCountMap.size());
-		System.out.println("test tag count: " + testDocSet.tagCountMap.size());
-		System.out.println("test vote count: " + testDocSet.voteCountMap.size());
-		System.out.println("test doc size:" + testDocSet.docs.size());
+		testDocSet.print("test");
+		System.out.println("test doc 0: " + testDocSet.docs.get(0).docName);
+		System.out.println("test doc 1: " + testDocSet.docs.get(1).docName);
 
 		//trainDocSet.copyTrainDocVocals(testDocSet);
 		//FileUtil.saveClass(trainDocSet, trainDocfile);
@@ -73,11 +72,10 @@ public class SimpleEvaluate {
 	
 	private void computeExpertiseMean(float[][] tau, Documents docSet,
 			float[] expertiseMean) {
-		// TODO Auto-generated method stub
 		for(int i = 0; i < E; i++){
 			float mean = 0;
 			for(int j = 0; j < docSet.indexToVoteMap.size(); j++){
-				mean += Float.valueOf(docSet.indexToVoteMap.get(j)) * tau[i][j];
+				mean += Float.parseFloat(docSet.indexToVoteMap.get(j)) * tau[i][j];
 			}
 			expertiseMean[i] = mean;
 			System.out.println("expertise " + i + " mean : " + mean);
@@ -85,8 +83,7 @@ public class SimpleEvaluate {
 	}
 	
 	private void printKUExpertiseScore(float[][][] phi, float[] expertiseMean, int U, String resPath) {
-		// TODO Auto-generated method stub
-		ArrayList<String> KUEMeanLines = new ArrayList<String>();
+		ArrayList<String> KUEMeanLines = new ArrayList<>();
 		for(int k = 0; k < K; k++){
 			String line = "";
 			for(int u = 0; u < U; u++){
@@ -102,11 +99,10 @@ public class SimpleEvaluate {
 	}
 
 	private void printUtopics(float[][] theta, int U, String resPath, ArrayList<String> userIDs) {
-		// TODO Auto-generated method stub
 		//model.utopics
-		ArrayList<String> utopicsLines = new ArrayList<String>();
+		ArrayList<String> utopicsLines = new ArrayList<>();
 		for(int i = 0; i < U; i++){
-			List<Integer> tWordsIndexArray = new ArrayList<Integer>(); 
+			List<Integer> tWordsIndexArray = new ArrayList<>();
 			for(int t = 0; t < K; t++){
 				tWordsIndexArray.add(new Integer(t));
 			}
@@ -121,38 +117,35 @@ public class SimpleEvaluate {
 	}
 
 	private static void readTau(float[][] tau, String file) {
-		// TODO Auto-generated method stub
-		ArrayList<String> lines = new ArrayList<String>();
+		ArrayList<String> lines = new ArrayList<>();
 		FileUtil.readLines(file, lines);
 		for(int i = 0; i < tau.length; i++){
 			String[] tokens = lines.get(i).split("\t");
 			for(int j = 0 ; j < tau[i].length; j++){
-				tau[i][j] = Float.valueOf(tokens[j]);
+				tau[i][j] = Float.parseFloat(tokens[j]);
 			}
 		}
 	}
 
 	private static void readPhi(float[][][] phi, String file) {
-		// TODO Auto-generated method stub
-		ArrayList<String> lines = new ArrayList<String>();
+		ArrayList<String> lines = new ArrayList<>();
 		FileUtil.readLines(file, lines);
 		for(String line : lines){
 			String[] tokens = line.split("\t");
-			int i = Integer.valueOf(tokens[0]);
-			int j = Integer.valueOf(tokens[1]);
-			int k = Integer.valueOf(tokens[2]);
-			phi[i][j][k] = Float.valueOf(tokens[3]);
+			int i = Integer.parseInt(tokens[0]);
+			int j = Integer.parseInt(tokens[1]);
+			int k = Integer.parseInt(tokens[2]);
+			phi[i][j][k] = Float.parseFloat(tokens[3]);
 		}
 	}
 
 	private static void readTheta(float[][] theta, String file) {
-		// TODO Auto-generated method stub
-		ArrayList<String> lines = new ArrayList<String>();
+		ArrayList<String> lines = new ArrayList<>();
 		FileUtil.readLines(file, lines);
 		for(int i = 0; i < theta.length; i++){
 			String[] tokens = lines.get(i).split("\t");
 			for(int j = 0 ; j < theta[i].length; j++){
-				theta[i][j] = Float.valueOf(tokens[j]);
+				theta[i][j] = Float.parseFloat(tokens[j]);
 			}
 		}
 	}
@@ -166,7 +159,6 @@ public class SimpleEvaluate {
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			// TODO Auto-generated method stub
 			//Sort topic word index according to the probability of each word in topic k
 			if(sortProb[o1] > sortProb[o2]) return -1;
 			else if(sortProb[o1] < sortProb[o2]) return 1;
