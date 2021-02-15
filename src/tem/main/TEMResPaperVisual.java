@@ -15,7 +15,7 @@ public class TEMResPaperVisual {
 	 */
 	public static void main(String[] args) throws IOException, Exception {
 		// String modelFile = PathConfig.modelResPath + "ServerTEMRes/Model_E10_T15.model";
-		String modelFile = PathConfig.modelResPath + "USER80/E10_T15.model";
+		String modelFile = PathConfig.modelResPath + "USER80/Model_E10_T15.model";
 
 		//Get TEM model result
 		TEMModel model = new TEMModel();
