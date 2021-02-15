@@ -19,10 +19,10 @@ import java.util.HashMap;
  */
 
 public class TEMResPro {
-	
+
+//	static String expType = "UserRec";
 	static String expType = "AnswerRec";
-	//UserRec
-	//AnswerRec
+
 
 	static HashMap<Integer, Integer> userIDToTEMIndexMap = new HashMap<Integer, Integer>();
 	static HashMap<Integer, Integer> TEMIndexToUserIDMap = new HashMap<Integer, Integer>();
@@ -37,10 +37,7 @@ public class TEMResPro {
 	static Documents testDocSet = new Documents();
 
 
-	/**
-	 */
-	public static void main(String[] args) throws IOException,
-			ClassNotFoundException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		String trainData = PathConfig.modelResPath + "USER80/USER" + PathConfig.minPostNum + ".data";
 		String testData = PathConfig.testDataPath + "QATest.data";
 
@@ -49,27 +46,33 @@ public class TEMResPro {
 		String LDAPhiFile = PathConfig.modelResPath + "LDA/lda_500.phi";
 		LDAtheta = FileUtil.read2DArray(LDAThetaFile);
 		LDAphi = FileUtil.read2DArray(LDAPhiFile);
-		
+
 		//Get UQA result
 		String UQAPath = PathConfig.UQAPath;
-		
+
 		String dataFile = UQAPath + "UQAModelRes.data";
 		uqaRes = FileUtil.loadClass(uqaRes, dataFile);
 		System.out.println(uqaRes.indexToTagMap.size());
 		System.out.println(uqaRes.indexToTermMap.size());
 		System.out.println(uqaRes.indexToUserMap.size());
-		
-		//Get userlist
 
+		// Build indices for users
 		trainDocSet = FileUtil.loadClass(trainDocSet, trainData);
 		for (int u = 0; u < trainDocSet.docs.size(); u++) {
-			userIDToTEMIndexMap.put(trainDocSet.docs.get(u).ownerUserID[0], u);
-			TEMIndexToUserIDMap.put(u, trainDocSet.docs.get(u).ownerUserID[0]);
+			Document doc = trainDocSet.docs.get(u);
+			// The ownerUserID is the same for each document in trainDocSet
+			// because the files are grouped by users
+			userIDToTEMIndexMap.put(doc.ownerUserID[0], u);
+			TEMIndexToUserIDMap.put(u, doc.ownerUserID[0]);
 		}
-		System.out.println(userIDToTEMIndexMap);
+		assert userIDToTEMIndexMap.size() == trainDocSet.docs.size() : "There should be 1 doc for each user";
+		trainDocSet.print("train");
 
+		// Load test data (generated in SimpleEvaluate.java)
 		testDocSet = FileUtil.loadClass(testDocSet, testData);
-		
+		assert testDocSet.docs.get(0).docName.equals("testData.questions") : "The first doc should be testData.questions";
+		testDocSet.print("test");
+
 		String[] modelNames = {"TEPR", "TEM", "TSPR", "PR", "ID","UQA"};
 		//String[] modelNames = {"TEPR"};
 		for(String modelName : modelNames){
@@ -116,43 +119,51 @@ public class TEMResPro {
 
 	private static void estVotes(Documents docSet, String outputfile, String modelName, String T)
 			throws Exception {
-		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-		for (int q = 0; q < docSet.docs.get(0).postID.length; q++) {
-			map.put(docSet.docs.get(0).postID[q], q);
+		// Maps from SO questionId to index in testData.questions (line number - 1)
+		HashMap<Integer, Integer> questionIdToIndexMap = new HashMap<Integer, Integer>();
+		// iterates over testData.questions file
+		Document testDataQuestions = docSet.docs.get(0);
+		for (int q = 0; q < testDataQuestions.postID.length; q++) {
+			questionIdToIndexMap.put(testDataQuestions.postID[q], q);
 		}
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputfile)));
 
-		Post newpost = new Post();
-
+		// q = 0 corresponds to testData.questions (therefore skip it)
+		// q > 0 corresponds to <questionId>.answers
 		for (int q = 1; q < docSet.docs.size(); q++) {
-			// get question
+			// get answers
+			Document answersForQ = docSet.docs.get(q);
+			// parentID is same for every answer to question q
+			int qid = answersForQ.parentID[0];
+
+			// get question position for answer document collection q
+			int parentPostPos = questionIdToIndexMap.get(qid);
+			// System.out.println("Question " + q + ":\tparentPostPos = " + parentPostPos + "\t qid = " + qid);
+
+			// Create Post for question
+			Post newpost = new Post(testDataQuestions, parentPostPos, docSet.indexToVoteMap, modelName, T);
 			double[] thetaQ = null;
-			int qid = docSet.docs.get(q).parentID[0];
-			int parentPostPos = map.get(qid);
-			newpost = new Post(docSet.docs.get(0), parentPostPos,
-					docSet.indexToVoteMap, modelName, T);
 			if(modelName.equals("TEM") || modelName.equals("TEPR") || modelName.equals("TSPR") || modelName.equals("UQA")){
+				// thetaQ (question’s topic distribution)
 				thetaQ = newpost.thetaD.clone();
 			}
-			// get answers
-			Document doc = docSet.docs.get(q);
-			for (int a = 0; a < docSet.docs.get(q).ownerUserID.length; a++) {
-				int tqid = doc.parentID[a];
-				if (tqid == qid) {
-					newpost = new Post(docSet.docs.get(q), a,
-							docSet.indexToVoteMap, modelName , T);
-					// compute distance between new thetaA and thetaQ
-					if (newpost.flag) {
-						double sim = 1;
-						if(modelName.equals("TEM") || modelName.equals("TEPR") || modelName.equals("TSPR") || modelName.equals("UQA")){
-							if(expType.equals("UserRec")){
-								sim = 1 - MatrixUtil.JS(newpost.thetaU, thetaQ);
-							} else if(expType.equals("AnswerRec")) {
-								sim = 1 - MatrixUtil.JS(newpost.thetaD, thetaQ);
-							} else {
-								System.err.println("exp type error!");
-							}
+			// iterate over each answer for the qth question
+			for (int a = 0; a < answersForQ.postID.length; a++) {
+				int tqid = answersForQ.parentID[a];
+				assert tqid == qid : "tqid != qid";
+				newpost = new Post(answersForQ, a, docSet.indexToVoteMap, modelName, T);
+				// compute distance between new thetaA and thetaQ
+				if (newpost.flag) {
+					double sim = 1;
+					if (modelName.equals("TEM") || modelName.equals("TEPR") || modelName.equals("TSPR") || modelName.equals("UQA")) {
+						if (expType.equals("UserRec")) {
+							sim = 1 - MatrixUtil.JS(newpost.thetaU, thetaQ);
+						} else if (expType.equals("AnswerRec")) {
+							sim = 1 - MatrixUtil.JS(newpost.thetaD, thetaQ);
+						} else {
+							System.err.println("exp type error!");
+						}
 
 						} else {
 							sim = 1;
@@ -165,19 +176,15 @@ public class TEMResPro {
 						//Rank answers based on the 6th column
 						//Could modify rank col in Matlab code
 
-						writer.write(docSet.docs.get(0).postID[q - 1]
-								+ "\t" + docSet.docs.get(q).ownerUserID[a]
-								+ "\t" + newpost.vote + "\t" + sim + "\t"
-								+ auth + "\t" + (sim * auth) + "\n");
-								//+ MatrixUtil.KL(newpost.thetaD, thetaQ) + "\t"
-								//+ MatrixUtil.KL(thetaQ, newpost.thetaD) + "\n");
-					} else {
-						//System.out.println(newpost.userid + " is not contained in userSet!");
-					}
-
+					writer.write(testDataQuestions.postID[q - 1] + "\t"
+							+ answersForQ.postID[a] + "\t"
+							+ "\t" + newpost.vote + "\t" + sim + "\t"
+							+ auth + "\t" + (sim * auth) + "\n");
+					//+ MatrixUtil.KL(newpost.thetaD, thetaQ) + "\t"
+					//+ MatrixUtil.KL(thetaQ, newpost.thetaD) + "\n");
 				} else {
-					System.err.println("tqid != qid!!");
-					System.exit(0);
+					// newpost.flag is false
+//					System.out.println("User " + newpost.userid + " is not contained in userSet!");
 				}
 			}
 			writer.flush();
@@ -187,17 +194,21 @@ public class TEMResPro {
 
 	public static class Post {
 
-		boolean flag = true;
+		boolean flag = true; // indicates if the user who contributed the post is known from training data
 		public int userid;
 		public double[] thetaD; //doc topic distribution
 		public double[] thetaU; //user topic distribution
 		public float vote;
-		public float estAuth = 0f;;
+		public float estAuth = 0f;
 
+		// n is the index within a Document which is a collection of
+		// 1) all questions (nth question)
+		// 2) all answers to a specific question (nth answer)
 		public Post(Document doc, int n, ArrayList<String> indexToVoteMap,
 				String modelName, String T) {
 			int tmpPostID = doc.ownerUserID[n];
 
+			// Check if the user was already present in the training data
 			if (userIDToTEMIndexMap.containsKey(tmpPostID)) {
 				userid = userIDToTEMIndexMap.get(tmpPostID);
 				vote = Float.parseFloat(indexToVoteMap.get(doc.votes[n]));
@@ -228,17 +239,19 @@ public class TEMResPro {
 				EstTheta(doc.docWords[n], doc.tags[n], modelName);
 				EstAuthority(modelName, T);
 			} else {
+				// user was not present during training
 				userid = tmpPostID;
-				//System.out.println("test!!!!");
+//				System.out.println("userIDToTEMIndexMap does not contain key " + tmpPostID);
 				flag = false;
 			}
 		}
 
 		public Post() {
 		}
-
+		// Here takes the model inference (prediction on held out data) place
 		private void EstTheta(int[] words, int[] tags, String modelName) {
-			if(modelName == "TEM" || modelName == "TEPR"){
+			if(modelName.equals("TEM") || modelName.equals("TEPR")){
+				// See Paper equation (15)
 				double[] probs = new double[model.K];
 				int[] overflow = new int[model.K];
 

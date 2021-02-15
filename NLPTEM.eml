@@ -11,7 +11,7 @@
 	<lib name="Jama-1.0.3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/Jama-1.0.3.jar!/"/>
 	</lib>
-	<lib name="jargs.jar" scope="COMPILE">
+	<lib name="jargs-1.0.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jargs-1.0.jar!/"/>
 	</lib>
 </component>
